@@ -8,6 +8,9 @@ export default class extends BaseSchema {
       table.increments('id').primary()
       table.string('email', 255).notNullable().unique()
       table.string('password', 180).notNullable()
+      table.integer('gender').notNullable().defaultTo(0); // 0 Untuk Laki Laki
+      table.integer('age')
+      table.integer('tb')
       table.string('nohp', 100).notNullable()
       table.string('remember_me_token').nullable()
 
