@@ -53,7 +53,7 @@ export default class AuthController {
     public async register({ request, response }: HttpContextContract) {
         try {
         // Ambil Variable dari request body
-        const { email, password, nohp } = request.body();
+        const { email, password, nohp ,age,tb ,gender} = request.body();
     
         // Cek validasi 
           const emailSchema = schema.create({
@@ -102,6 +102,9 @@ export default class AuthController {
             email: email,
             password: hashedPassword,
             nohp: nohp,
+            age:age,
+            tb:tb,
+            gender:gender
           });
       
           return response.status(201).json({

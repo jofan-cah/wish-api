@@ -3,6 +3,12 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import User from 'App/Models/User';
 import Hash from '@ioc:Adonis/Core/Hash'
 import Database from '@ioc:Adonis/Lucid/Database';
+import { schema ,rules,} from '@ioc:Adonis/Core/Validator'
+// import { Application } from '@adonisjs/core/build/standalone';
+import Application from '@ioc:Adonis/Core/Application'
+// import { schema } from '@ioc:Adonis/Core/Validator'
+import fs from 'fs';
+
 
 
 export default class UsersController {
@@ -48,37 +54,66 @@ export default class UsersController {
 
     try {
             
-        
-      // Req Body Email Password
-      const { email,password } = request.body();
+      // Ambil Variable dari request body
+      const { email, password, nohp ,age,tb ,gender} = request.body();
+  
+      // Cek validasi 
+        const emailSchema = schema.create({
+          email: schema.string({}, [
+            rules.email(),
+            rules.required()
+          ]),
+          password: schema.string({},[
+              rules.required(),
+              rules.minLength(4)
+          ]),
+          nohp: schema.string({},[
+              rules.required(),
+              rules.minLength(10),
 
-      // Cek email Lama apakah Ada
-      const oldEmail = await User.query().where({email:email}).first();
-      if (oldEmail) {
+              rules.maxLength(14)
+          ])
+        })
+    
+      //   Kirim Validasi Unutuk Scema Mesages custom
+        await request.validate({
+          schema: emailSchema,
+          messages: {
+              'email.email': 'Email harus dalam format yang valid.',
+              'email.required': 'Email harus diisi.',
+              'password.required': 'Password harus diisi.',
+              'password.minLength': 'Password mimin 4 karakter',
+              'nohp.minLength': 'Password mimin 4 karakter',
+              'nohp.maxLength': 'Password max 14 karakter',
+          }
+        })
+      // Pengecekan email dan password
+        const existingUser = await User.query()
+          .where('email', email)
+          .orWhere('nohp', nohp)
+          .first();
+    
+        if (existingUser) {
           return response.status(422).json({
-              message:"Email Sudah Terdaftar"
-          })
-      }
-      // Lakukan Hasing
-      const hashedPassword = await Hash.make(password)
+            message: "Email/No HP Sudah Terdaftar",
+          });
+        }
+    
+        const hashedPassword = await Hash.make(password);
+        const user = await User.create({
+          email: email,
+          password: hashedPassword,
+          nohp: nohp,
+          age:age,
+          tb:tb,
+          gender:gender
+        });
+    
+        return response.status(201).json({
+          message: "Berhasil Daftar",
+          user: user,
 
-      // Tambah Data User
-      const user = await User.create({
-          email:email,
-          password:hashedPassword
-      })
-      // Generate Token
-       
-      //  const token = await auth.use('api').generate(user)
-
-
-      return response.status(201).json({
-
-              message : "Berhasil Daftar",
-              user :user,
-              // token :token
-   
-      })
+        });
   } catch (error) {
       response.status(500).json({
           message: "Error Server"
@@ -118,24 +153,51 @@ export default class UsersController {
      // Get params
      const {id} = params;
      // Get Body
-     const {email,password} = request.body()
+    //  const {email,password} = request.body()
+    const { email ,password, nohp ,age,tb ,gender} = request.body();
+
      // Get Ambil Data user by id
-     const users = await User.query().where({id:id}).firstOrFail()
- 
+    const users = await User.query().where({id:id}).firstOrFail()
+     // Periksa apakah password dirubah
+     if (password) {
+      const hashedPassword = await Hash.make(password);
+      users.password = hashedPassword;
+    }
+
+
+    const postSchema = schema.create({
+      avatar: schema.file({
+        size: '2mb',
+        extnames: ['jpg', 'gif', 'png'],
+      }),
+    
+    })
+  
+    const payload = await request.validate({ schema: postSchema })
+
+    // Hapus avatar lama jika ada
+    if (users.avatar) {
+      // Konstruksi path ke avatar lama
+      const oldAvatarPath = Application.publicPath('avatar') + '/' + users.avatar;
+
+      // Hapus file avatar lama
+      await fs.promises.unlink(oldAvatarPath);
+    }
+
+    await payload.avatar.move(Application.publicPath('avatar'), {
+      name: `${new Date().getTime()}.${payload.avatar.extname}`,
+    });
+
      // Query Update 
      users.merge({
-       email :email,
-       password : password
+      email: email,
+      nohp: nohp,
+      age:age,
+      tb:tb,
+      gender:gender,
+      avatar:payload.avatar.fileName
      }).save()
- 
-     // Query Update 2
-     // users.email = email
-     // users.password = password
-     // users.save()
- 
-     // // Query Update 3
-     // await User.query().where({id:id}).update({email:email,password:password})
- 
+
  
      return response.json({
        data : {
@@ -145,9 +207,7 @@ export default class UsersController {
    } catch (error) {
      // Tangani kesalahan di sini
      console.error(error)
-     return response.status(500).json({
-       message: 'Terjadi kesalahan dalam Meng Update Data.',
-     })
+     return response.status(500).json(error)
    }
 
 

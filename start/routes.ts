@@ -35,10 +35,13 @@ Route.group(() => {
   Route.resource('/api/menu' , 'MenusController')
   Route.resource('/api/users' , 'UsersController')
   Route.resource('/api/notes' , 'NotesController')
+Route.resource('/api/wish' , 'WishesController')
+
   
 }).middleware('auth')
 Route.post('/api/keluar', 'AuthController.keluar')
 
+// Route.resource('/api/wish' , 'WishesController')
 
 // SIGN IN ROUTES
 Route.get('/twitter', 'AuthController.redirect');

@@ -15,6 +15,18 @@ export default class User extends BaseModel {
   @column()
   public nohp :string
 
+  @column()
+  public gender :number
+
+  @column()
+  public age :number
+
+  @column()
+  public tb :number
+
+  @column()
+  public avatar :string
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
