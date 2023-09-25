@@ -1,0 +1,88 @@
+swagger: '3.0'
+info:
+  title: Contoh API Pengguna
+  description: Dokumentasi API untuk operasi CRUD pengguna
+  version: 1.0.0
+tags:
+  - name: Users
+    description: Operasi terkait pengguna
+definitions:
+  User:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      email:
+        type: string
+paths:
+  /api/users:
+    get:
+      tags:
+        - Users
+      summary: Mendapatkan daftar pengguna
+      responses:
+        '200':
+          description: Daftar pengguna berhasil diambil
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+    post:
+      tags:
+        - Users
+      summary: Membuat pengguna baru
+      parameters:
+        - name: user
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '201':
+          description: Pengguna berhasil dibuat
+  /api/users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Mendapatkan informasi pengguna berdasarkan ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Informasi pengguna berhasil diambil
+          schema:
+            $ref: '#/definitions/User'
+    put:
+      tags:
+        - Users
+      summary: Memperbarui informasi pengguna berdasarkan ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+        - name: user
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '200':
+          description: Informasi pengguna berhasil diperbarui
+    delete:
+      tags:
+        - Users
+      summary: Menghapus pengguna berdasarkan ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+      responses:
+        '204':
+          description: Pengguna berhasil dihapus
