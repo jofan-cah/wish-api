@@ -121,6 +121,7 @@ export default class UsersController {
   }
     
   }
+  
 
   public async show({response,params}: HttpContextContract) {
 
