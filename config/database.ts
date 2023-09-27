@@ -5,7 +5,7 @@
  * file.
  */
 
-import Env from '@ioc:Adonis/Core/Env'
+// import Env from '@ioc:Adonis/Core/Env'
 import type { DatabaseConfig } from '@ioc:Adonis/Lucid/Database'
 
 const databaseConfig: DatabaseConfig = {
@@ -19,7 +19,7 @@ const databaseConfig: DatabaseConfig = {
   | file.
   |
   */
-  connection: Env.get('DB_CONNECTION'),
+  connection: 'mysql',
 
   connections: {
     /*
@@ -36,11 +36,11 @@ const databaseConfig: DatabaseConfig = {
     mysql: {
       client: 'mysql2',
       connection: {
-        host: Env.get('MYSQL_HOST'),
-        port: Env.get('MYSQL_PORT'),
-        user: Env.get('MYSQL_USER'),
-        password: Env.get('MYSQL_PASSWORD', ''),
-        database: Env.get('MYSQL_DB_NAME'),
+        host: 'localhost', // Ganti dengan host MySQL Anda
+        port: 3306, // Ganti dengan port MySQL Anda
+        user: 'root', // Ganti dengan nama pengguna MySQL Anda
+        password: '', // Ganti dengan kata sandi MySQL Anda (kosongkan jika tidak ada)
+        database: 'wish', // Ganti dengan nama basis data MySQL Anda
       },
       migrations: {
         naturalSort: true,
